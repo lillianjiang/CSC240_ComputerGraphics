@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Flood Fill</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+
+    // note: change both for a different background color
+    var backgroundColor = "white";
+    var backgroundRGB = [255,255,255,255];
+
+    var what = [255,100,243,255]
+    var green1 = "#3E5047";
+    var green2 = "#A2B8AD";
+    var blue1 = "#A2B8B8";
+
+    //draw regular polygon
+    function regularPolygon(n,cx,cy,r,lineColor) {
+        graphics.strokeStyle = lineColor;
+        var theta = 2*Math.PI/n
+        // start with the first point on the x axis, i.e. (r,0), then
+        // translate by cx and cy
+        graphics.beginPath();
+        graphics.moveTo(r+cx,cy);
+        
+        for (var i=0; i < n; i++) {
+            var angle = (i+1)*theta
+            var x = Math.round(r*Math.cos(angle) + cx)
+            var y = Math.round(r*Math.sin(angle) + cy)
+            graphics.lineTo(x,y);
+        }
+
+        graphics.stroke();
+    }
+
+    // return true if color1==color2, an false otherwise
+    // example input: color1 = [0,255,0,255], pure green
+    function colorEqual(color1, color2) {
+        //unless we checked all color, we will not return true
+        for(var i = 0;i<4;i++){
+            if(color1[i] != color2[i]){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // fill a shape, starting at the pixel (x,y)
+    // note: make sure to set "fillStyle" to the desired fill color 
+    // before calling this function
+    function floodFill(x, y, oldColor) {
+        // TODO
+        // note that this returns [R,G,B,A]
+        var pixColor = graphics.getImageData(x, y, 1, 1).data;
+         //if current pixel is not colored, floodfill adjected 4 picels
+         //if colored, stop
+         if(colorEqual(pixColor,oldColor) == false){
+            return;
+         }
+         else{
+            graphics.fillRect(x,y,1,1);
+            floodFill(x-1,y,oldColor);
+            floodFill(x+1,y,oldColor);
+            floodFill(x,y+1,oldColor);
+            floodFill(x,y-1,oldColor);
+         }
+    }
+
+    //sweepFill is faster than Floodfill method, it uses iteration instead of recursion
+    function sweepFill(x,y,oldColor) {
+        var pixColor1 = graphics.getImageData(x,y,1,1).data;
+
+        if(colorEqual(pixColor1,oldColor)){
+            graphics.fillRect(x,y,1,1);
+            //keep tracks of two "edge" counter
+            var x_l = x;
+            var x_r = x;
+            //Fill pixels to the left
+            while(colorEqual(graphics.getImageData((x_l-1),y,1,1).data,oldColor)){
+                graphics.fillRect(x_l-1,y,1,1);
+                x_l--;
+            }
+            //Fill pixels to the right
+            while(colorEqual(graphics.getImageData((x_r+1),y,1,1).data,oldColor)){
+                graphics.fillRect(x_r+1,y,1,1);
+                x_r++;
+            }
+            //scan left to right
+            for(var i =x_l;i<=x_r;i++){
+                //calling above & below
+                sweepFill(i,y+1,oldColor);
+                sweepFill(i,y-1,oldColor);
+            }
+        }
+        else{
+            return;
+        }
+        
+
+    }
+
+    
+    function draw() {
+        // make sure to color the background first, since it doesn't have a default color
+        graphics.fillStyle = backgroundColor;
+        graphics.fillRect(0,0,canvas.width,canvas.height);
+
+        regularPolygon(8,50,145,30, blue1);  
+        var start = performance.now();
+        graphics.fillStyle = blue1;
+        floodFill(50,145, backgroundRGB);
+        var end = performance.now();
+        console.log("fillStyle uses "+(end-start)+" seconds");
+        
+        regularPolygon(8,255,145,30,blue1);
+        graphics.fillStyle = blue1;
+        sweepFill(255,145, backgroundRGB);
+        
+        var start2 = performance.now();
+        regularPolygon(6,150,145,100, green1);
+        graphics.fillStyle = green1;
+        sweepFill(150,145, backgroundRGB);
+        var end2 = performance.now(); 
+        console.log("sweepFill use "+(end2-start2)+" seconds");
+
+        regularPolygon(3,210,230,20, green2);
+        graphics.fillStyle = green2;
+        sweepFill(210,230, backgroundRGB);
+
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="450" height="290"></canvas>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Transformation Matrices</title>
+
+<script>
+    //Finished by myself.
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+    var timer;
+    // this GLOBAL variable is responsible for maintaining the current
+    // set of transformations (3x3)
+    var currMatrix;
+
+    // this function multiplies the current matrix by another transformation,
+    // then updates the current matrix to the result
+    function pushMatrix(newMatrix) {
+        currMatrix = matrixMultiply(currMatrix, newMatrix); // order very important!
+
+        // note that the setTransform method clear the current matrix and then
+        // sets it to be this new one (it does not build up the transformations!)
+        graphics.setTransform(currMatrix[0][0],currMatrix[1][0],
+                           currMatrix[0][1],currMatrix[1][1],
+                           currMatrix[0][2],currMatrix[1][2]);
+    }
+
+    function identityMatrix() {
+        var identity=[[1,0,0],[0,1,0],[0,0,1]];
+        return identity;
+            }
+
+    function matrixMultiply(M1, M2) {
+        if(M1[0].length != M2.length) throw "error";
+        var result = [];
+        for (var i = 0; i < M1.length; i++) {
+            var row = [];
+         for (var j = 0; j < M2[0].length; j++) {
+                var sum = 0;
+                for (var k = 0; k < M1[0].length; k++) {
+                    sum += M1[i][k] * M2[k][j];
+                }
+                row.push(sum);
+              }
+              result.push(row);
+          }
+         return result; 
+     }
+
+        function scale(ax, ay)    {
+            var A=[[ax,0,0],[0,ay,0],[0,0,1]];
+            pushMatrix(A); 
+        } 
+     
+        function rotate(theta){
+            var R=[[Math.cos(theta),-Math.sin(theta),0],[Math.sin(theta),Math.cos(theta),0],[0,0,1]];
+            pushMatrix(R);
+        }     
+        
+        function translate(tx, ty) {
+            var T=[[1,0,tx],[0,1,ty],[0,0,1]];
+            pushMatrix(T);
+        }
+        
+        function reflection() {     
+            var F=[[1,0,0],[0,-1,0],[0,0,1]];;
+            pushMatrix(F);
+        }
+        
+        function shear(lambda){     
+            var S=[[1,0,0],[0,lambda,0],[0,0,1]];;
+            pushMatrix(S);
+        }
+
+
+    function draw88(){
+         graphics.fillStyle="red";
+         graphics.fillRect(-30,-20,40,40);
+    }
+
+    function draw77(){
+        graphics.fillStyle="red";
+        graphics.fillRect(0,0,5,5);
+    }
+
+    function draw66() {
+        graphics.beginPath();
+        graphics.arc(100,100,180,0,2*Math.PI);
+        graphics.strokeStyle = "blue";
+        graphics.stroke();
+    }
+
+    var i=0;
+    function draw() {
+        if(i<25){
+            shear(1.3);
+            rotate(0.3);
+            draw66();
+            i++;
+        }else if(i<65){
+            translate(1,1);
+            shear(1.1);
+            rotate(-3.5);
+            draw77();
+            i++;
+        }    
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        currMatrix=identityMatrix();
+        translate(400,300);
+        draw88();
+        draw();  // draw something on the canvas
+        setInterval(draw,100);
+  
+        
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="800" height="600"></canvas>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Transformations</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+    var timer;
+    var angle = 0.1; // we will rotate the cube by this angle each time
+
+    function rotateCube() {
+        //graphics.translate(100,100);
+        graphics.rotate(0.2);
+
+        graphics.fillRect(100,100,50,50);
+    }
+    
+    // function draw1(){
+    //     graphics.translate(30,40);
+    //     graphics.rotate(1.0472);
+    //     graphics.fillRect(200,10,50,50);
+    // }
+    function draw() {
+        // draw a circle for the cube to rotate around
+        // graphics.beginPath();
+        // graphics.arc(400,400,180,0,2*Math.PI);
+        // graphics.stroke();
+
+        // 1) call translate twice with different values, then switch the order
+        
+        //graphics.translate(260,200);
+        
+
+        // 2) call rotate twice with different values, then switch the order
+        
+    //  graphics.rotate(0.5);
+        
+        // 3) call translate then rotate, and then switch the order
+        // graphics.rotate(0.1);
+        // graphics.translate(260,200);
+
+        // 4) call rotate then scale, and then switch the order
+
+        // graphics.rotate(-0.5);
+        // graphics.scale(2,5);
+    
+        graphics.rotate(1.0472);
+        graphics.scale(2,7);
+        
+        graphics.fillRect(50,10,50,50);
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        graphics.fillStyle = "blue";
+        draw();  // draw something on the canvas
+        timer = setInterval(rotateCube, 150)
+        // graphics.fillStyle = "red";
+        // draw1();
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="800" height="800"></canvas>
+</body>
+</html>

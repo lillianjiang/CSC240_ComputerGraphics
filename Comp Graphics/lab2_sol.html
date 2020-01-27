@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Regular Polygon</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+
+    // draws a regular polygon with n sides, centered at (cx,cy), with radius r
+    function regularPolygon(n,cx,cy,r,lineColor) {
+        graphics.strokeStyle = lineColor;
+
+        var theta = 2*Math.PI/n
+
+        // start with the first point on the x axis, i.e. (r,0), then
+        // translate by cx and cy
+        graphics.beginPath();
+        graphics.moveTo(r+cx,cy);
+        
+        for (var i=0; i < n; i++) {
+            var angle = (i+1)*theta
+            var x = Math.round(r*Math.cos(angle) + cx)
+            var y = Math.round(r*Math.sin(angle) + cy)
+            graphics.lineTo(x,y);
+        }
+
+        graphics.stroke();
+    }
+    
+    function draw() {
+        // draw on the canvas, using the graphics context
+        regularPolygon(10,200,200,50,"aqua")
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="450" height="290"></canvas>
+</body>
+</html>

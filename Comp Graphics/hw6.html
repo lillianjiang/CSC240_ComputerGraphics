@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<head>
+<title>Pyramid</title>
+<script src="three.min.js"></script>
+
+<!-- Modified from the MeshFaceMaterial.html example in our textbook 
+    (Introduction to Computer Graphics) by David J. Eck -->
+
+<script>
+    var scene, camera, renderer; // Three.js rendering basics.
+
+    var pyramid;
+
+    var canvas; // The canvas on which the image is rendered.
+   
+    
+    // Create the scene. This function is called once, as soon as the page loads.
+    // The renderer has already been created before this function is called.
+    function createWorld() {
+        
+        renderer.setClearColor(0); // Set background color (0, or 0x000000, is black).
+        scene = new THREE.Scene(); // Create a new scene which we can add objects to.
+    
+        // create a camera, sitting on the positive z-axis.  The camera is not part of the scene.
+        // TODO 1: camera here
+        camera = new THREE.PerspectiveCamera(45,canvas.width/canvas.height,1,50);
+      //  camera.position.z = 15 ;
+         camera.rotation.x = 3.1/2;
+         camera.position.y = -20;
+         
+         camera.position.z = 0.5 ;
+    
+        // create some lights and add them to the scene.
+        // TODO 2: add lights here
+        // dim light shining from above
+        scene.add( new THREE.DirectionalLight( 0xffffff, 0.4 ) );
+
+        // a light to shine in the direction the camera faces
+        var viewpointLight = new THREE.DirectionalLight( 0xffffff, 0.8 );  
+        viewpointLight.position.set(0,0,1);  // shines down the z-axis
+        scene.add(viewpointLight);
+
+        // arguments are width along the x-axis, then width along y-axis
+        var geometry = new THREE.PlaneGeometry(15, 5);
+        var material = new THREE.MeshBasicMaterial({color: 0x99ffff, side: THREE.DoubleSide});
+        var plane = new THREE.Mesh( geometry, material );
+        scene.add( plane );
+
+        //generate pyramid in scene
+        for(var num = 0 ; num<5 ; num ++){
+            var x = Math.random()*12-6;
+            var y = Math.random();
+            var z = 0;
+            var height = Math.random()*5+0.5;//[1,6)
+            addpyramid(x,y,z,height);
+        }
+        
+        addsun(-6,30,30)
+      
+    }
+    function addsun(cx,cy,cz){
+        var geometry = new THREE.SphereGeometry( cx, cy, cz );
+        var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+        var sphere = new THREE.Mesh( geometry, material );
+        sphere.position.set(0,0,1);
+        scene.add( sphere )
+
+    }
+
+
+    function addpyramid(cx,cy,cz,height) {
+        // set up the geometry for our pyramid
+        var pyramidGeom = new THREE.Geometry();
+
+        // TODO 3: create the (x,y,z) points for the 5 vertices of our pyramid
+        pyramidGeom.vertices = [  // array of Vector3 giving vertex coordinates
+            new THREE.Vector3( cx+1, cy+1 ,cz ),  // vertex number 0
+            new THREE.Vector3( cx+1, cy-1 ,cz ),  // vertex number 1
+            new THREE.Vector3( cx-1,cy-1, cz),  // vertex number 2
+            new THREE.Vector3( cx-1 ,cy+1 ,cz ),  // vertex number 3
+            new THREE.Vector3( cx, cy, cz+height)   // vertex number 4
+        ];
+        
+        // TODO 4: using the indices of the vertices above, create triangular faces
+        pyramidGeom.faces = [  // array of Face3 giving the triangular faces
+            new THREE.Face3(0,1,2),  // one half of the bottom face
+            new THREE.Face3(0,2,3),  // second half of the bottom face
+            new THREE.Face3(0,4,1),  // remaining faces are the four sides
+            new THREE.Face3(1,4,2),
+            new THREE.Face3(2,4,3),
+            new THREE.Face3(0,3,4)
+        ];
+    
+        // compute normals so we know which way is facing "out"
+        pyramidGeom.computeFaceNormals();
+    
+        // map the faces to materials
+        pyramidGeom.faces[0].materialIndex = 0;
+        for (var i = 1; i <= 5; i++) {
+            pyramidGeom.faces[i].materialIndex = i-1;
+        }
+    
+    
+        // Creates a material for the pyramid that is "matte" not "shiny".
+        var pyramidFaceMaterial = [
+            new THREE.MeshLambertMaterial( { color: 0xffffff, flatShading: true } ),
+            new THREE.MeshLambertMaterial( { color: 0x99ffff, flatShading: true } ),
+            new THREE.MeshLambertMaterial( { color: 0xff99ff, flatShading: true } ),
+            new THREE.MeshLambertMaterial( { color: 0xffff99, flatShading: true } ),
+            new THREE.MeshLambertMaterial( { color: 0xff9999, flatShading: true } )
+        ];
+    
+        // Create the pyramid using the geometry and materials we've set up.
+        // TODO 5: create the pyramid and add it to the scene
+        pyramid = new THREE.Mesh( pyramidGeom, pyramidFaceMaterial );
+        theta_x = 0;
+        theta_y = 0;
+        theta_z = 0;
+        pyramid.rotation.set(theta_x,theta_y,theta_z);    
+        scene.add(pyramid);
+
+
+
+    }
+    var then = 0;
+    var ypos = 0;
+    // Render the scene. This is called for each frame of the animation.
+    function render(now) {
+        // var elapsed = now - then;
+        // console.log(elapsed);
+        // then = now;
+        // camera.position.y += elapsed/1000;
+        
+        if(ypos < 35){
+            camera.position.y +=0.05;
+        }
+        else if(ypos < 45)
+            camera.rotation.y -= 0.01;
+        else if(ypos < 50)
+            camera.position.x +=0.05;
+        else if(ypos < 60)
+            camera.rotation.y +=0.01;
+        else if(ypos < 70)
+            camera.position.y +=0.01;
+        else if(ypos < 85)
+            camera.rotation.y += 0.01;
+        else if(ypos < 150)
+            camera.position.x -=0.01;
+        else if(ypos < 165)
+            camera.rotation.y -=0.01;
+        else if (ypos < 180){
+            camera.position.y +=0.01;
+            ypos = 50;
+        }
+        ypos +=0.1;
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+        
+        
+    }
+
+    //----------------------------------------------------------------------------------
+
+    // The init() function is called by the onload event when the document has loaded.
+    function init() {
+        try {
+            canvas = document.getElementById("glcanvas");
+            renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true} );
+        }
+        catch (e) {
+            document.getElementById("canvas-holder").innerHTML = "<h3><b>WebGL is not available.</b><h3>";
+            return;
+        }
+    
+        // create world and render scene
+        createWorld();
+        render();
+    }
+
+</script>
+
+</head>
+<body onload="init()">
+<div id="canvas-holder">
+    <canvas id="glcanvas" width="600" height="300"></canvas>
+</div>
+</body>
+</html>

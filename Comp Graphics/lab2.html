@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Regular Polygon</title>
+
+
+<script>
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+
+    // draws a regular polygon with n sides, centered at (cx,cy), with radius r
+    function regularPolygon(n, cx, cy, r, lineColor) {
+        
+        // TODO: set the strokeStyle (not fillStyle) to the desired lineColor
+        graphics.strokeStyle = lineColor;
+
+        // TODO: create a new variable called theta, as discussed in class
+        var theta = (2*Math.PI)/n;
+
+        // this begins our polygon
+        graphics.beginPath();
+
+        // TODO: uncomment the line below and pass in the first point, which
+        // is (r,0), translated by cx and cy
+        graphics.moveTo(cx+r,cy);
+        
+        // TODO; create a for loop that goes over all n sides, computing the
+        // x and y coordinates for each new vertex of the polygon
+        // call graphics.lineTo(x,y) inside your loop
+        for(var i = 0; i < n ;i++){
+            graphics.lineTo(cx+r*Math.cos((i+1)*theta),cy+r*Math.sin((i+1)*theta));
+        }
+        graphics.closePath(); 
+
+        // this is what actually draws the polygon
+        graphics.stroke();
+    }
+    
+    function draw() {
+        // TODO: call your regular polygon function here (one line)
+        regularPolygon(10,150,150,100,"blue");
+        regularPolygon(7,250,100,59,"red");
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="450" height="290"></canvas>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<head>
+<title>HW7: Planetary System</title>
+<script src="./three.min.js"></script>
+
+<script>
+    var scene, camera, renderer;  // Three.js rendering basics.
+
+    var canvas;  // The canvas on which the image is rendered.
+
+    var dirLight; // Our directional light is global so we can change its position.
+    var angle;    // The angle (about the y-axis) of the directional light.
+
+    var star, earth, moon, meteor;
+    // Create the scene. This function is called once, as soon as the page loads.
+    // The renderer has already been created before this function is called.
+    function createWorld() {
+        
+        renderer.setClearColor(0); // Set background color (0, or 0x000000, is black).
+        scene = new THREE.Scene(); // Create a new scene which we can add objects to.
+    
+        // create a camera, sitting on the positive z-axis.  The camera is not part of the scene.
+        camera = new THREE.PerspectiveCamera(45, canvas.width/canvas.height, 0.1, 1800);
+
+        // adjust camera
+        camera.rotation.x -= 1.05;
+        camera.position.y += 500;
+        camera.position.z = 500; // pull back the camera
+
+        // camera.rotation.x -= Math.PI/2;
+        // camera.position.y += 650;
+
+
+        // ambient light
+        ambientLight = new THREE.AmbientLight("white", 0.1);
+        scene.add(ambientLight);
+
+        // TODO: add point light
+        pointLight = new THREE.PointLight("rgb(190,220,250)", 1.3, 220); // color, intensity, and distance
+        pointLight.position.set(0, 0, 0);
+        scene.add(pointLight);
+        scene.add(new THREE.PointLightHelper(pointLight, 3)); // see where the light is
+
+        // TODO: add directional light
+        // dirLight = new THREE.DirectionalLight("rgb(130,200,220)", 1);
+        // dirLight.position.set(90, 15, 30);
+        // scene.add(dirLight);
+
+        // set up the sphere vars
+        var radius = 50,
+            segments = 30,
+            rings = 30;
+
+        // create the star's material
+        var starGeometry = new THREE.SphereGeometry(radius, segments, rings);
+        var starMaterial = new THREE.MeshLambertMaterial({ color: "white", emissive: "rgb(100, 200, 230)", emissiveIntensity: 1});
+        star = new THREE.Mesh(starGeometry, starMaterial);
+
+        // add the star to the scene
+        scene.add(star); 
+
+        // create earth
+        var earthGeometry = new THREE.SphereGeometry(radius/2, segments, rings);
+        var earthMaterial = new THREE.MeshLambertMaterial({color: "rgb(50, 200, 255)"});
+        earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        scene.add(earth)
+        earth.position.z += 150;
+
+        // creat moon 
+        var moonGeometry = new THREE.SphereGeometry(radius/6, segments, rings);
+        var moonMaterial = new THREE.MeshLambertMaterial({color: "rgb(190,190,200)"});
+        moon = new THREE.Mesh(moonGeometry, moonMaterial);
+        moon.position.z += 45;
+        scene.add(moon);
+
+        // create meteor
+        var meteorGeometry = new THREE.SphereGeometry(radius/7, segments, rings);
+        var meteorMaterial = new THREE.MeshLambertMaterial({color: "rgb(230, 100, 50)", emissive: "rgb(230, 150, 20)"});
+        meteor = new THREE.Mesh(meteorGeometry, meteorMaterial);
+        scene.add(meteor);
+        meteor.position.z += 300;
+        // meteor.position.y += 100;
+        meteor.position.x -= 300;
+
+        earth.add(moon);
+        star.add(earth);
+
+    }
+
+    // Render the scene. This is called for each frame of the animation.
+    var theta = 0;
+    var psi = 0;
+    function render() {
+        requestAnimationFrame( render );
+
+        // TODO animation here
+
+        // planetary rotations:
+        star.rotation.y += 0.01;
+        earth.rotation.y += 0.02;
+        meteor.position.y = 250*Math.sin(psi) - 150;
+        meteor.position.x = 150*Math.cos(psi);
+        meteor.position.z = 200*Math.cos(psi);
+        // meteor.rotation.z += 0.01;
+        psi += 0.02;
+
+        // camera rotations:
+        // console.log(camera.position.x, camera.position.y, camera.position.z); //0, 500, 300
+        camera.position.x = 200*Math.sin(theta);
+        camera.position.z = 100*Math.cos(theta) + 300;
+        camera.position.y = 500 + 200*Math.sin(theta);
+
+        theta += 0.002;
+        renderer.render(scene, camera);
+    }
+
+    //----------------------------------------------------------------------------------
+
+    // The init() function is called by the onload event when the document has loaded.
+    function init() {
+        try {
+            canvas = document.getElementById("glcanvas");
+            renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true} );
+        }
+        catch (e) {
+            document.getElementById("canvas-holder").innerHTML = "<h3><b>WebGL is not available.</b><h3>";
+            return;
+        }
+    
+        // create world and render scene
+        createWorld();
+        render();
+    }
+
+</script>
+
+</head>
+<body onload="init()">
+<div id="canvas-holder">
+    <canvas id="glcanvas" width="1000" height="500"></canvas>
+</div>
+</body>
+</html>
